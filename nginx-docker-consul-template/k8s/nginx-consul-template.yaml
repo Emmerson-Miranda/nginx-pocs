@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: nginxct
+  name: nginxct
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginxct
+  template:
+    metadata:
+      labels:
+        app: nginxct
+    spec:
+      containers:
+      - image: emmerson/nginx-consul-template:1.1
+        name: nginx-consul-template
+        env:
+          - name: ENABLE_CONSUL_TEMPLATE
+            value: "true"
+          - name: VAULT_TOKEN
+            value: "s.3262LWzSeCgJUtXRRsTvl7ml"
+        imagePullPolicy: Always
