@@ -1,11 +1,11 @@
 apiVersion: v1
 data:
   cert.tpl: |-
-    {{ with secret "pki/sign/example-dot-com" "ttl=30s" "common_name=example.com" "ip_sans=192.168.1.80" }}
+    {{ with secret "pki/issue/rotate-com" "ttl=30s" "common_name=example.com" }}
     {{ .Data.certificate }}
     {{ end }}
   key.tpl: |-
-    {{ with secret "pki/sign/example-dot-com" "ttl=30s" "common_name=example.com" "ip_sans=192.168.1.80" }}
+    {{ with secret "pki/issue/rotate-com" "ttl=30s" "common_name=example.com" }}
     {{ .Data.private_key }}
     {{ end }}
   template.hcl: |-
@@ -23,23 +23,18 @@ data:
 
     log_level = "debug"
 
-    #syslog {
-    #  enabled  = true
-    #  facility = "LOCAL5"
-    #}
-
     template {
       source      = "/opt/poc/consul-template/cert.tpl"
       destination = "/opt/poc/certs/cert.pem"
       perms       = 0755
-      command     = "nginx reload"
+      #command     = "nginx reload"
     }
 
     template {
       source      = "/opt/poc/consul-template/key.tpl"
       destination = "/opt/poc/certs/key.pem"
       perms       = 0755
-      command     = "nginx reload"
+      #command     = "nginx reload"
     }
 kind: ConfigMap
 metadata:
