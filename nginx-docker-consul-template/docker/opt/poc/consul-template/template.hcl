@@ -1,11 +1,13 @@
 vault {
   address      = "http://vault.vault:8200"
-
+  ssl {
+     enabled = false
+   }
   # I'm using the environment variable VAULT_TOKEN instead.
   # token        = "s.xxxxxx"
   # grace        = "1s"
   unwrap_token = false
-  renew_token  = true
+  renew_token  = false
 }
 
 log_level = "debug"
