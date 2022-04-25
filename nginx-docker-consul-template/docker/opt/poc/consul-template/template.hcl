@@ -1,5 +1,5 @@
 vault {
-  address      = "http://vault.vault:8200"
+  address      = "http://vault:8200"
   ssl {
      enabled = false
    }

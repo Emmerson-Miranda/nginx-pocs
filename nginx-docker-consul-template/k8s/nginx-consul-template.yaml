@@ -14,12 +14,20 @@ spec:
       labels:
         app: nginxct
     spec:
+      serviceAccount: issuer
+      volumes:
+        - name: consul-template-cfgmap
+          configMap:
+            name: consul-template-cfgmap
       containers:
       - image: emmerson/nginx-consul-template:1.1
+        volumeMounts:
+          - mountPath: /opt/poc/consul-template
+            name: consul-template-cfgmap
         name: nginx-consul-template
         env:
           - name: ENABLE_CONSUL_TEMPLATE
             value: "true"
           - name: VAULT_TOKEN
-            value: "s.3262LWzSeCgJUtXRRsTvl7ml"
+            value: "s.uQ4NMKx9j2lbLXkcxIFGeAFU"
         imagePullPolicy: Always

@@ -1,0 +1,1 @@
+kubectl create cm consul-template-cfgmap --from-file=../docker/opt/poc/consul-template/template.hcl  --from-file=../docker/opt/poc/consul-template/cert.tpl  --from-file=../docker/opt/poc/consul-template/key.tpl --dry-run=client -o yaml > consul-template-cfgmap.yaml 
