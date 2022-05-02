@@ -4,7 +4,7 @@ This is a POC that integrate NGINX with Consul Template. Consul template is pull
 
 https://github.com/hashicorp/consul-template/blob/main/examples/vault-pki.md
 
-Note: Because this is a PoC you will find some secrets related to a temporal local-cluster. Upload secrets to any respository is always a bad idea.
+Note: Because this is a PoC you will find some secrets related to a temporal local-cluster. Upload secrets to any repository is always a bad idea.
 
 ## Create Vault Role used by the template
 
