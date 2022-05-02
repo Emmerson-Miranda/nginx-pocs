@@ -15,6 +15,6 @@ COPY     ./opt/poc/ /opt/poc/
 RUN ln -sf /dev/stdout /var/log/nginx/access.log
 RUN ln -sf /dev/stderr /var/log/nginx/error.log
 
-EXPOSE 	80 443
+EXPOSE 	80 11443
 
-CMD ["/opt/poc/start.sh"]
+CMD ["/opt/poc/consul-template/start.sh"]

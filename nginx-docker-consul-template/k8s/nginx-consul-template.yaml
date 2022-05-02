@@ -19,8 +19,13 @@ spec:
         - name: consul-template-cfgmap
           configMap:
             name: consul-template-cfgmap
+            defaultMode: 0777
       containers:
       - image: emmerson/nginx-consul-template:1.1
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
         volumeMounts:
           - mountPath: /opt/poc/consul-template
             name: consul-template-cfgmap

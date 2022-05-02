@@ -24,17 +24,67 @@ data:
     log_level = "debug"
 
     template {
+      source      = "/opt/poc/consul-template/secure.tpl"
+      destination = "/etc/nginx/conf.d/secure.conf"
+      perms       = 0755
+    }
+
+    template {
       source      = "/opt/poc/consul-template/cert.tpl"
       destination = "/opt/poc/certs/cert.pem"
       perms       = 0755
-      #command     = "nginx reload"
+      #command     = "service nginx reload || true"
     }
 
     template {
       source      = "/opt/poc/consul-template/key.tpl"
       destination = "/opt/poc/certs/key.pem"
       perms       = 0755
-      #command     = "nginx reload"
+      command     = "service nginx reload || true"
+    }
+  start.sh: |-
+    #!/bin/bash
+    ENABLE_CONSUL_TEMPLATE="${ENABLE_CONSUL_TEMPLATE:-false}"
+    
+    date
+    
+    if [ "$ENABLE_CONSUL_TEMPLATE" == "true" ]
+    then
+        echo "Starting NGINX with Consul template"
+        consul-template -config "/opt/poc/consul-template/template.hcl" & nginx -g 'daemon off;'
+    else
+        echo "Starting NGINX without Consul template because ENABLE_CONSUL_TEMPLATE is $ENABLE_CONSUL_TEMPLATE instead of  'true'."
+        nginx -g 'daemon off;'
+    fi  
+  secure.tpl: |-
+    server {
+        listen       11443 ssl;
+        server_name  _;
+
+        access_log /dev/stdout;
+        error_log /dev/stdout info;
+
+        ssl_certificate    /opt/poc/certs/cert.pem;
+        ssl_certificate_key /opt/poc/certs/key.pem;
+    
+        location / {
+            root   /usr/share/nginx/html;
+            index  index.html index.htm;
+        }
+    
+        location /fs/ {
+          alias /;
+          autoindex on;
+        }
+    
+        #error_page  404              /404.html;
+    
+        # redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
     }
 kind: ConfigMap
 metadata:
