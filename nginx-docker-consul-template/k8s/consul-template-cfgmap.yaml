@@ -1,11 +1,11 @@
 apiVersion: v1
 data:
   cert.tpl: |-
-    {{ with secret "pki/issue/rotate-com" "ttl=30s" "common_name=example.com" }}
+    {{ with secret "pki/issue/pocnginx-com" "ttl=30s" "common_name=poc.nginx.com" }}
     {{ .Data.certificate }}
     {{ end }}
   key.tpl: |-
-    {{ with secret "pki/issue/rotate-com" "ttl=30s" "common_name=example.com" }}
+    {{ with secret "pki/issue/pocnginx-com" "ttl=30s" "common_name=poc.nginx.com" }}
     {{ .Data.private_key }}
     {{ end }}
   template.hcl: |-
