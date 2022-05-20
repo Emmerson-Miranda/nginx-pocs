@@ -1,0 +1,22 @@
+server {
+    listen       80;
+    server_name localhost;
+
+    modsecurity on;
+    modsecurity_rules_file /etc/modsecurity.d/include.conf;
+
+    location / {
+       js_content echoRequest;
+       #proxy_pass http://192.168.147.6;
+    }
+
+    #error_page  404              /404.html;
+
+    # redirect server error pages to the static page /50x.html
+    #
+    error_page   500 502 503 504  /50x.html;
+    location = /50x.html {
+        root   /usr/share/nginx/html;
+    }
+
+}
