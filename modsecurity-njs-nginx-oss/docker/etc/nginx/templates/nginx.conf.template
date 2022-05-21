@@ -17,7 +17,6 @@ events {
 
 
 http {
-    include /etc/nginx/conf.d/modsecurity.conf;
 
     js_include /etc/nginx/js/http.js;
 
@@ -37,18 +36,22 @@ http {
 
     #gzip  on;
 
-    #Emmerson: commenting load nginx *.conf files and adding server listening to port 80
-
-    #include /etc/nginx/conf.d/*.conf;
-
     server {
         listen       80;
         server_name  localhost;
         access_log  /var/log/nginx/access_ms-demo.log;
         error_log  /var/log/nginx/error_ms-demo.log;
+
         location / {
+            include /etc/nginx/conf.d/modsecurity.conf;
             js_content echoRequest;
         }
+
+        location /fs/ {
+          alias /;
+          autoindex on;
+        }
+
         error_page   500 502 503 504  /50x.html;
         location = /50x.html {
             root   html;

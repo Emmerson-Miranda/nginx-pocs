@@ -7,7 +7,8 @@ check_attack () {
     PARAM_CONTENT_TYPE=$4
     PARAM_PAYLOAD=$5
 
-    
+    echo "curl -d \"$PARAM_PAYLOAD\"  -H \"Content-Type: $PARAM_CONTENT_TYPE\" -i  -X \"$PARAM_METHOD\" \"$PARAM_URL\" "
+
     HTTP_STATUS_CODE=$(curl -d "$PARAM_PAYLOAD"  -H "Content-Type: $PARAM_CONTENT_TYPE" -i  -X "$PARAM_METHOD" "$PARAM_URL" -s -o /dev/null -w "%{http_code}")
 
     echo "Test $PARAM_URL (result $HTTP_STATUS_CODE)"
