@@ -1,0 +1,57 @@
+load_module modules/ngx_http_modsecurity_module.so;
+
+#Emmerson: enabling JS module
+load_module modules/ngx_http_js_module.so;
+
+user  nginx;
+#Emmerson: moving from 1 to 4
+worker_processes  4;
+
+error_log  /var/log/nginx/error.log warn;
+pid        /var/run/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include /etc/nginx/conf.d/modsecurity.conf;
+
+    js_include /etc/nginx/js/http.js;
+
+    include       /etc/nginx/mime.types;
+    default_type  application/octet-stream;
+
+    log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                      '$status $body_bytes_sent "$http_referer" '
+                      '"$http_user_agent" "$http_x_forwarded_for"';
+
+    access_log  /var/log/nginx/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    #Emmerson: commenting load nginx *.conf files and adding server listening to port 80
+
+    #include /etc/nginx/conf.d/*.conf;
+
+    server {
+        listen       80;
+        server_name  localhost;
+        access_log  /var/log/nginx/access_ms-demo.log;
+        error_log  /var/log/nginx/error_ms-demo.log;
+        location / {
+            js_content echoRequest;
+        }
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+    }
+}
