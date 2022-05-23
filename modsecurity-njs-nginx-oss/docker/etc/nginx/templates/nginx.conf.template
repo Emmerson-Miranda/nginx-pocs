@@ -7,7 +7,8 @@ user  nginx;
 #Emmerson: moving from 1 to 4
 worker_processes  4;
 
-error_log  /var/log/nginx/error.log warn;
+#error_log  /var/log/nginx/error.log warn;
+error_log /dev/stdout debug;
 pid        /var/run/nginx.pid;
 
 
@@ -18,6 +19,8 @@ events {
 
 http {
 
+    access_log /dev/stdout;
+
     js_include /etc/nginx/js/http.js;
 
     include       /etc/nginx/mime.types;
@@ -27,7 +30,7 @@ http {
                       '$status $body_bytes_sent "$http_referer" '
                       '"$http_user_agent" "$http_x_forwarded_for"';
 
-    access_log  /var/log/nginx/access.log  main;
+    #access_log  /var/log/nginx/access.log  main;
 
     sendfile        on;
     #tcp_nopush     on;
@@ -39,8 +42,10 @@ http {
     server {
         listen       80;
         server_name  localhost;
-        access_log  /var/log/nginx/access_ms-demo.log;
-        error_log  /var/log/nginx/error_ms-demo.log;
+
+        log_subrequest on;
+        #access_log  /var/log/nginx/access_ms-demo.log;
+        #error_log  /var/log/nginx/error_ms-demo.log;
 
         location / {
             include /etc/nginx/conf.d/modsecurity.conf;
@@ -50,6 +55,21 @@ http {
         location /fs/ {
           alias /;
           autoindex on;
+        }
+
+        location /myapi {
+            js_content orchestratingRequest;
+        }
+
+        location = /_myapi/waf {
+            internal;
+            include /etc/nginx/conf.d/modsecurity.conf;
+            js_content emptyResponse;
+        }
+
+        location = /_myapi/backend {
+            internal;
+            js_content echoRequest;
         }
 
         error_page   500 502 503 504  /50x.html;
