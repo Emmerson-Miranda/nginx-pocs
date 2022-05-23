@@ -1,4 +1,6 @@
 // Doc https://nginx.org/en/docs/njs/
+// Doc http://nginx.org/en/docs/http/ngx_http_js_module.html
+// Doc http://nginx.org/en/docs/http/ngx_http_core_module.html#var_request_id
 
 function echoRequest(r) {
     var a, s, h;
@@ -30,50 +32,44 @@ function echoRequest(r) {
     r.return(200, s);
 }
 
+function print(r, name, obj){
+    r.log(name + " - status " + obj.status);
+    r.log(name + " - requestBody  " + obj.requestBody);
+    r.log(name + " - responseBody  " + obj.responseBody);
+    var str = "" + obj.responseBody;
+    r.log(name + " - responseBodyLength  " + str.length);
+    r.log(name + " - uri  " + obj.uri);
+    r.log(name + " - method  " + obj.method);
+    r.log(name + " - Content-Length  " + obj.headersIn["Content-Length"]);
+}
+
+function processBackendResponse(r, reply){
+    print(r, "processBackendResponse", reply);
+    var str = "" + reply.responseBody;
+    r.headersOut["Content-Length"] = str.length;
+    r.return(reply.status, reply.responseBody); 
+    r.finish();
+}
+
+function processWafResponse(r, reply){
+    print(r, "processWafResponse", reply);   
+
+    if (reply.status == 200) {
+        var opts = {  method: r.method, body: r.requestBody };
+        r.subrequest(r.variables.backendlocation, opts, function(response){processBackendResponse(r, response);});
+    } else {
+        r.return(reply.status, reply.responseBody); 
+        r.finish();
+    }
+}
 
 function orchestratingRequest(r) {
     r.log("Starting request ... ");
 
-    function print(name, obj){
-        r.log(name + " - status " + obj.status);
-        r.log(name + " - requestBody  " + obj.requestBody);
-        r.log(name + " - responseBody  " + obj.responseBody);
-        var str = "" + obj.responseBody;
-        r.log(name + " - responseBodyLength  " + str.length);
-        r.log(name + " - uri  " + obj.uri);
-        r.log(name + " - method  " + obj.method);
-        r.log(name + " - Content-Length  " + obj.headersIn["Content-Length"]);
-    }
-
-    function processBackendResponse(reply){
-        print("processBackendResponse", reply);
-        var str = "" + reply.responseBody;
-        r.headersOut["Content-Length"] = str.length;
-        r.return(reply.status, reply.responseBody); 
-        r.finish();
-    }
-
-    function processWafResponse(reply){
-        print("processWafResponse", reply);   
-    
-        if (reply.status == 200) {
-            var opts = {  method: r.method, body: r.requestBody };
-            r.subrequest("/_myapi/backend", opts, processBackendResponse);
-        } else {
-            r.return(reply.status, reply.responseBody); 
-            r.finish();
-        }
-    }
-
-    //var h;
-    //for (h in r.headersIn) {
-    //    r.headersOut[h] = r.headersIn[h];
-    //}
-
-    print("orchestratingRequest", r);  
+    print(r, "orchestratingRequest", r);  
 
     var opts = {  method: r.method,  body: r.requestBody };
-    r.subrequest("/_myapi/waf", opts, processWafResponse);
+    r.subrequest(r.variables.waflocation, opts, function(response){processWafResponse(r, response);});
 
     //let reply = await ngx.fetch('http://nginx.org/');
     //let body = await reply.text();
@@ -86,3 +82,5 @@ function emptyResponse(r) {
     r.headersOut["Content-Length"] = "2";
     r.return(200, "Hi"); 
 }
+
+export default {emptyResponse, orchestratingRequest, echoRequest}

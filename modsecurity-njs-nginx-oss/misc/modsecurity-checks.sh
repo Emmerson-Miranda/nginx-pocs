@@ -59,5 +59,8 @@ echo "Attack Detection My API"
 echo "-----------------------"
 
 check_attack "http://localhost/myapi?exec=/bin/bash" "POST" "403" "application/json" '{"key1":"value1", "key2":"value2"}' 
+check_attack "http://localhost/myapi?sql_attack" "POST" "403" "application/json" "$attack"
+check_attack "http://localhost/myapi?xss_attack" "POST" "403" "application/xml" "$xss"
+check_attack "http://localhost/myapi?xss_attack_invalid_content_type" "POST" "400" "application/json" "$xss"
 
 echo "- end -"
